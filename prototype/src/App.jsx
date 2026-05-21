@@ -315,21 +315,40 @@ export default function App() {
     return <span className={`inline-flex whitespace-nowrap px-2 py-1 text-xs rounded-full border ${config.style}`}>{config.text}</span>;
   };
 
-  const renderFormInput = (label, name, type = 'text', placeholder = '', required = false) => (
-    <div className="mb-5">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        disabled={!permissions.canEditConfigs && activeTab !== 'users'}
-        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
-        placeholder={placeholder}
-        value={formData[name] || ''}
-        onChange={(event) => setFormData({ ...formData, [name]: event.target.value })}
-      />
-    </div>
-  );
+  const renderFormInput = (label, name, type = 'text', placeholder = '', required = false) => {
+    if (name === 'target' && formData.jump_type === 'app_page') return null;
+
+    let resolvedLabel = label;
+    let resolvedPlaceholder = placeholder;
+
+    if (name === 'target') {
+      if (formData.jump_type === 'h5_package') {
+        resolvedLabel = '鍖呭唴椤甸潰鏍囪瘑';
+        resolvedPlaceholder = '渚嬪锛歴pages/worldcup/index 鎴?main';
+      }
+
+      if (formData.jump_type === 'h5_page') {
+        resolvedLabel = '鍦ㄧ嚎 H5 URL';
+        resolvedPlaceholder = '渚嬪锛歨ttps://activity.example.com/landing';
+      }
+    }
+
+    return (
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {resolvedLabel} {required && <span className="text-red-500">*</span>}
+        </label>
+        <input
+          type={type}
+          disabled={!permissions.canEditConfigs && activeTab !== 'users'}
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
+          placeholder={resolvedPlaceholder}
+          value={formData[name] || ''}
+          onChange={(event) => setFormData({ ...formData, [name]: event.target.value })}
+        />
+      </div>
+    );
+  };
 
   const renderFormSelect = (label, name, options, required = false) => (
     <div className="mb-5">
@@ -486,6 +505,32 @@ export default function App() {
         </div>
       </div>
     );
+  };
+
+  const renderJumpTypeHint = () => {
+    if (formData.jump_type === 'h5_package') {
+      return (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="font-semibold">H5 离线包说明</div>
+          <div className="mt-1">
+            这里的 `target` 不是在线跳转 URL，而是客户端解压离线包后要打开的包内页面标识；在线地址请填写下载地址和兜底地址。
+          </div>
+        </div>
+      );
+    }
+
+    if (formData.jump_type === 'h5_page') {
+      return (
+        <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <div className="font-semibold">在线 H5 说明</div>
+          <div className="mt-1">
+            在线 H5 模式下，`target` 表示最终访问的在线 H5 URL；下方 `fallback_url` 仅用于异常场景兜底。
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   const renderActionButtons = (item) => (
@@ -881,6 +926,7 @@ export default function App() {
                   ], true)}
                   {renderMaterialUpload()}
                   {renderJumpConfig()}
+                  {renderJumpTypeHint()}
                   {renderAppPageConfig()}
                   <div className="grid grid-cols-2 gap-6">
                     {renderFormInput('上线时间', 'start_time', 'datetime-local')}
@@ -930,6 +976,7 @@ export default function App() {
                     ], true)}
                   </div>
                   {formData.interaction_type !== 'pure_exposure' && renderJumpConfig()}
+                  {formData.interaction_type !== 'pure_exposure' && renderJumpTypeHint()}
                   {formData.interaction_type !== 'pure_exposure' && renderAppPageConfig()}
                   <div className="grid grid-cols-2 gap-6 border-t border-gray-100 pt-6 mt-2">
                     {renderFormInput('上线时间', 'start_time', 'datetime-local')}
@@ -1011,6 +1058,7 @@ export default function App() {
                   </div>
 
                   {renderJumpConfig()}
+                  {renderJumpTypeHint()}
                   {renderAppPageConfig()}
 
                   <div className="grid grid-cols-2 gap-6">
