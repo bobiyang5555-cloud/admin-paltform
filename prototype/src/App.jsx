@@ -48,8 +48,8 @@ const initialBanners = [
     placement: 'home_top_banner',
     audience: 'overseas',
     name: '阿尔瓦雷斯世界杯主题',
-    jump_type: 'h5_page',
-    target: 'https://activity.example.com/worldcup',
+    jump_type: 'h5_package',
+    target: '阿尔瓦雷斯模板 H5',
     start_time: '2026-06-02T00:00',
     end_time: '2026-07-24T23:59',
     status: 'online',
@@ -96,7 +96,7 @@ const initialPushes = [
     audience: 'overseas',
     title: 'Alvarez 模板上线',
     body: '剪同款视频，赢签名球衣',
-    jump_type: 'h5_page',
+    jump_type: 'h5_package',
     send_mode: 'scheduled',
     send_time_raw: '2026-06-05T20:00',
     send_time: '2026-06-05 20:00 (定时)',
@@ -210,7 +210,6 @@ export default function App() {
     const normalizedItem = item
       ? {
           ...item,
-          jump_type: item.jump_type === 'h5_package' ? 'h5_page' : item.jump_type,
           app_page_key: item.app_page_key || (item.jump_type === 'app_page' ? item.target || 'app_home' : ''),
           app_page_params: item.app_page_params || '',
         }
@@ -260,9 +259,6 @@ export default function App() {
       update_time: createTimestamp(),
     };
 
-    delete newItem.download_url;
-    delete newItem.fallback_url;
-
     if (newItem.jump_type === 'app_page') {
       const appPageKey = activeTab === 'splash' ? 'app_home' : (formData.app_page_key || 'app_home');
       const appPageParams = activeTab === 'splash' ? '' : (formData.app_page_params || '').trim();
@@ -272,9 +268,7 @@ export default function App() {
       newItem.target_display = activeTab === 'splash'
         ? '默认首页 (app_home)'
         : `${getAppPageLabel(appPageKey)}${appPageParams ? `?${appPageParams}` : ''}`;
-    } else if (newItem.jump_type === 'h5_page') {
-      newItem.target = (formData.target || '').trim();
-      newItem.target_display = newItem.target;
+      newItem.fallback_url = formData.fallback_url || '';
     }
 
     if (activeTab === 'push') {
@@ -694,52 +688,31 @@ export default function App() {
     </div>
   );
 
-  const renderLegacyJumpConfig = () => (
+  const renderJumpConfig = () => (
     <div className="p-6 bg-blue-50/30 rounded-xl border border-blue-100 mb-6">
       <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
         <span className="w-1 h-3.5 bg-blue-500 rounded-full"></span>
         跳转承接配置
       </h4>
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         {renderFormSelect('跳转类型', 'jump_type', [
-          { label: '在线 H5 (h5_page)', value: 'h5_page' },
+          { label: 'H5 离线包 (h5_package)', value: 'h5_package' },
           { label: '在线 H5 (h5_page)', value: 'h5_page' },
           { label: 'App 内页 (app_page)', value: 'app_page' },
         ], true)}
         {renderFormInput('跳转目标 (ID/URL)', 'target', 'text', '例如：世界杯主会场 ID', true)}
       </div>
 
-      {formData.jump_type === 'h5_page' && (
+      {formData.jump_type === 'h5_package' && (
         <div className="grid grid-cols-2 gap-6">
-          {renderFormInput('H5 地址', 'target', 'text', 'https://...', true)}
-          {renderFormInput('H5 地址', 'target', 'text', 'https://...', true)}
+          {renderFormInput('离线包下载地址 (ZIP)', 'download_url', 'text', 'https://...', true)}
+          {renderFormInput('在线兜底地址 (Fallback)', 'fallback_url', 'text', '弱网或解压失败时访问的 URL', true)}
         </div>
       )}
 
-      {formData.jump_type === 'app_page' && (
+      {formData.jump_type !== 'h5_package' && (
         <div className="grid grid-cols-1 gap-6">
-          {renderFormInput('页面配置已在下方展示', 'target_display', 'text', '', false)}
-        </div>
-      )}
-    </div>
-  );
-
-  const renderJumpConfig = () => (
-    <div className="p-6 bg-blue-50/30 rounded-xl border border-blue-100 mb-6">
-      <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span className="w-1 h-3.5 bg-blue-500 rounded-full"></span>
-        璺宠浆鎵挎帴閰嶇疆
-      </h4>
-      <div className="grid grid-cols-1 gap-6">
-        {renderFormSelect('璺宠浆绫诲瀷', 'jump_type', [
-          { label: '鍦ㄧ嚎 H5 (h5_page)', value: 'h5_page' },
-          { label: 'App 鍐呴〉 (app_page)', value: 'app_page' },
-        ], true)}
-      </div>
-
-      {formData.jump_type === 'h5_page' && (
-        <div className="grid grid-cols-1 gap-6">
-          {renderFormInput('H5 鍦板潃', 'target', 'text', 'https://...', true)}
+          {renderFormInput('在线兜底地址 (Fallback)', 'fallback_url', 'text', '异常场景跳转链接', true)}
         </div>
       )}
     </div>
