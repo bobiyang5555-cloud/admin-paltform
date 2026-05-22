@@ -276,6 +276,10 @@ export default function App() {
       newItem.target_display = newItem.target;
     }
 
+    if ((activeTab === 'banner' || activeTab === 'splash') && (formData.start_time || '').trim()) {
+      newItem.status = 'pending';
+    }
+
     if (activeTab === 'push') {
       newItem.translations = normalizeTranslations(formData.translations);
       if (formData.send_mode === 'immediate') {
