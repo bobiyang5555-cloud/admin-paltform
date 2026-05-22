@@ -34,8 +34,7 @@ const languages = [
 const appPageOptions = [
   { label: '默认首页 (app_home)', value: 'app_home' },
   { label: '相机页 (app_camera)', value: 'app_camera' },
-  { label: '剪辑页 (app_editor)', value: 'app_editor' },
-  { label: '模板页 (app_template)', value: 'app_template' },
+  { label: '剪辑页 (app_edit)', value: 'app_editor' },
   { label: '活动会场页 (app_activity)', value: 'app_activity' },
   { label: '消息中心 (app_message)', value: 'app_message' },
   { label: '个人中心 (app_profile)', value: 'app_profile' },
@@ -709,7 +708,7 @@ export default function App() {
 
       {formData.jump_type === 'h5_page' && (
         <div className="grid grid-cols-1 gap-6">
-          {renderFormInput('在线 H5 URL地址', 'target', 'text', 'https://...', true)}
+          {renderFormInput('在线 H5 URL 地址', 'target', 'text', 'https://...', true)}
         </div>
       )}
 
@@ -1147,7 +1146,7 @@ export default function App() {
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     {renderFormInput('最低 App 版本', 'min_version', 'text', '例如: 4.4.4')}
-                    {renderFormInput('排序权重', 'sort', 'number', '数值越小越靠前')}
+                    {renderFormInput('展示顺序', 'sort', 'number', '数值越小越靠前')}
                   </div>
                 </>
               )}
